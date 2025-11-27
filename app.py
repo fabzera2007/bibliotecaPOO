@@ -202,4 +202,6 @@ def status():
 
 if __name__ == "__main__":
     setup_database() # Cria as tabelas na inicialização do script
-    app.run(debug=True)
+    import os
+    debug_mode = os.getenv('FLASK_ENV') != 'production'
+    app.run(debug=debug_mode, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
