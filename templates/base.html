@@ -20,10 +20,19 @@
     </header>
 
     <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="site-footer">&copy; Biblioteca — Interface criada automaticamente</footer>
+    <footer class="site-footer">&copy; Biblioteca — Davi e Fabricio</footer>
     {% block scripts %}{% endblock %}
 </body>
 </html>

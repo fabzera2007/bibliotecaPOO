@@ -3,62 +3,111 @@
 {% block title %}Status do Sistema{% endblock %}
 
 {% block content %}
-    <h3>Leitores Cadastrados</h3>
-    <table class="data-table">
-        <thead>
-            <tr><th>Matrícula</th><th>Nome</th><th>Ativas</th></tr>
-        </thead>
-        <tbody>
-            {% for l in leitores %}
-                <tr>
-                    <td>{{ l.matricula }}</td>
-                    <td>{{ l.nome }}</td>
-                    <td>{{ Locacao.query.filter_by(leitor_id=l.id).join(Livro).filter(Livro.disponivel==False).count() }}</td>
-                </tr>
-            {% else %}
-                <tr><td colspan="3">Nenhum leitor cadastrado.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <section class="status-top">
+            <h3>Resumo</h3>
+            <div class="cards">
+                <div class="card">Leitores: <strong>{{ leitores|length }}</strong></div>
+                <div class="card">Funcionários: <strong>{{ funcionarios|length }}</strong></div>
+                <div class="card">Livros: <strong>{{ livros|length }}</strong></div>
+                <div class="card">Ligações Ativas: <strong>{{ locs_ativas_info|length }}</strong></div>
+            </div>
+        </section>
 
-    <h3>Livros no Acervo</h3>
-    <table class="data-table">
-        <thead>
-            <tr><th>ISBN</th><th>Título</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-            {% for lv in livros %}
-                <tr>
-                    <td>{{ lv.isbn }}</td>
-                    <td>{{ lv.titulo }} {% if lv.tipo == 'livro_referencia' %}<small>(Referência)</small>{% endif %}</td>
-                    <td>{{ 'Disponível' if lv.disponivel else 'Locado' }}</td>
-                </tr>
-            {% else %}
-                <tr><td colspan="3">Nenhum livro no acervo.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <section>
+            <h3>Leitores Cadastrados</h3>
+            <table class="data-table">
+                <thead><tr><th>Matrícula</th><th>Nome</th><th>Ativas</th></tr></thead>
+                <tbody>
+                    {% for l in leitores %}
+                        <tr>
+                            <td>{{ l.matricula }}</td>
+                            <td>{{ l.nome }}</td>
+                            <td>{{ leitor_counts.get(l.id, 0) }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="3">Nenhum leitor cadastrado.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
 
-    <h3>Locações Ativas</h3>
-    <table class="data-table">
-        <thead>
-            <tr><th>Leitor</th><th>Livro</th><th>Previsão Devolução</th></tr>
-        </thead>
-        <tbody>
-            {% for loc in locs_ativas %}
-                <tr>
-                    <td>{{ loc.leitor.nome if loc.leitor else 'Desconhecido' }}</td>
-                    <td>{{ loc.livro.titulo if loc.livro else 'Desconhecido' }}</td>
-                    <td>{{ loc.data_devolucao_prevista }}</td>
-                </tr>
-            {% else %}
-                <tr><td colspan="3">Nenhuma locação ativa.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <section>
+            <h3>Livros no Acervo</h3>
+            <table class="data-table">
+                <thead><tr><th>Código</th><th>Título</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for lv in livros %}
+                        <tr>
+                            <td>{{ lv.isbn }}</td>
+                            <td>{{ lv.titulo }} {% if lv.tipo == 'livro_referencia' %}<small>(Referência)</small>{% endif %}</td>
+                            <td>{{ 'Disponível' if lv.disponivel else 'Locado' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="3">Nenhum livro no acervo.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
 
-    <div class="actions">
-        <a class="btn" href="/">Voltar</a>
-    </div>
+        <section>
+            <h3>Locações Ativas</h3>
+            <table class="data-table">
+                <thead><tr><th>Leitor</th><th>Livro</th><th>Código</th><th>Prev. Devolução</th><th>Dias Restantes</th></tr></thead>
+                <tbody>
+                    {% for info in locs_ativas_info %}
+                        <tr>
+                            <td>{{ info.leitor_name }}</td>
+                            <td>{{ info.livro_title }}</td>
+                            <td>{{ info.livro_isbn }}</td>
+                            <td>{{ info.devolucao }}</td>
+                            <td>{{ info.days_remaining }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5">Nenhuma locação ativa.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h3>Buscar Locações por Leitor</h3>
+            <form method="get" action="/status" class="form-card" style="padding:12px;">
+                <label style="flex:1">Selecione leitor:
+                    <select name="matricula">
+                        <option value="">-- selecionar --</option>
+                        {% for l in leitores %}
+                            <option value="{{ l.matricula }}" {% if selected_matricula and selected_matricula==l.matricula %}selected{% endif %}>{{ l.matricula }} — {{ l.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <div class="actions" style="width:auto">
+                    <button class="btn" type="submit">Pesquisar</button>
+                </div>
+            </form>
+
+            {% if selected_leitor %}
+                <h4>Locações de {{ selected_leitor.nome }} ({{ selected_leitor.matricula }})</h4>
+                <table class="data-table">
+                    <thead><tr><th>Livro</th><th>Código</th><th>Data Locação</th><th>Prev. Devolução</th><th>Dias Restantes</th></tr></thead>
+                    <tbody>
+                        {% for it in selected_locs_info %}
+                            <tr>
+                                <td>{{ it.livro_title }}</td>
+                                <td>{{ it.livro_isbn }}</td>
+                                <td>{{ it.loc_date }}</td>
+                                <td>{{ it.devolucao }}</td>
+                                <td>{{ it.days_remaining }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="5">Nenhuma locação encontrada para este leitor.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </section>
+
+        <div class="actions">
+                <a class="btn" href="/">Voltar</a>
+        </div>
 
 {% endblock %}

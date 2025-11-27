@@ -4,16 +4,41 @@
 
 {% block content %}
   <h2>Devolução</h2>
-  <form class="form-card" action="/devolver" method="post">
-    <input name="matricula" placeholder="Matrícula do Leitor">
-    <input name="isbn" placeholder="ISBN do Livro">
-    <input type="date" name="data_real">
-
-    <div class="actions">
-      <button class="btn primary" type="submit">Registrar Devolução</button>
+  <form class="form-card" method="get" action="/devolver" style="padding:12px;">
+    <label style="flex:1">Matrícula:
+      <input name="matricula" placeholder="Matrícula do Leitor">
+    </label>
+    <div class="actions" style="width:auto">
+      <button class="btn" type="submit">Pesquisar</button>
       <a class="btn" href="/">Voltar</a>
     </div>
   </form>
+
+  {% if leitor and leitor_locs %}
+    <h3>Locações Ativas de {{ leitor.nome }} ({{ leitor.matricula }})</h3>
+    <table class="data-table">
+      <thead><tr><th>Livro</th><th>Código</th><th>Data Locação</th><th>Prev. Devolução</th><th>Dias Restantes</th><th>Ação</th></tr></thead>
+      <tbody>
+        {% for it in leitor_locs %}
+          <tr>
+            <td>{{ it.livro_title }}</td>
+            <td>{{ it.livro_isbn }}</td>
+            <td>{{ it.loc_date }}</td>
+            <td>{{ it.devolucao }}</td>
+            <td>{{ it.days_remaining }}</td>
+            <td>
+              <form method="post" action="/devolver">
+                <input type="hidden" name="locacao_id" value="{{ it.loc_id }}">
+                <button class="btn primary" type="submit">Devolver</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% elif leitor %}
+    <p>Nenhuma locação ativa encontrada para {{ leitor.nome }}.</p>
+  {% endif %}
 {% endblock %}
 
 {% block scripts %}

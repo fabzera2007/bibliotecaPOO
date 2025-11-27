@@ -139,6 +139,9 @@ class Locacao(db.Model):
         self.leitor = leitor
         self.livro = livro
         self.funcionario = funcionario
+        # Garante que data_locacao é hoje (se não foi definida)
+        if not self.data_locacao:
+            self.data_locacao = date.today()
         self.data_devolucao_prevista = self.data_locacao + timedelta(days=prazo_dias)
 
     def calcular_multa(self) -> float:
