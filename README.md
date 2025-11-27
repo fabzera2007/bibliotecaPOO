@@ -3,18 +3,101 @@
 Uma aplicação web de gerenciamento de biblioteca desenvolvida com Flask e SQLAlchemy, demonstrando conceitos de Programação Orientada a Objetos (OOP): **herança, polimorfismo e associação**.
 
 ## 🏗️ Arquitetura OOP
+## 🏗️ Arquitetura OOP (explicação detalhada)
+
+Esta aplicação foi projetada para demonstrar claramente três conceitos de POO: **Herança**, **Polimorfismo** e **Associação**. A seguir explico como cada um foi implementado no código e como eles interagem nas rotas.
 
 ### Herança
-- `Pessoa` → `Leitor`, `Funcionario`
-- `Livro` → `LivroReferencia`
 
-### Polimorfismo
-- Single Table Inheritance (STI) para diferenciação de tipos
-- `LivroReferencia` sobrescreve `multa_diaria` (5.00 vs 1.00)
+Usamos classes base que representam entidades genéricas e subclasses que estendem comportamento e atributos.
 
-### Associação
-- Tabela `Locacao` conecta `Leitor` ↔ `Livro` ↔ `Funcionario`
-- Relações muitos-para-muitos via tabela de associação
+- `Pessoa` é a classe base para `Leitor` e `Funcionario`.
+
+  Exemplo (trecho de `sistema.py`):
+
+  ```python
+  class Pessoa(db.Model):
+     id = db.Column(db.String, primary_key=True)
+     nome = db.Column(db.String(100), nullable=False)
+     cpf = db.Column(db.String(14))
+     tipo = db.Column(db.String(50))
+     __mapper_args__ = {'polymorphic_identity': 'pessoa', 'polymorphic_on': tipo}
+
+  class Leitor(Pessoa):
+     __mapper_args__ = {'polymorphic_identity': 'leitor'}
+     matricula = db.Column(db.String(20), unique=True, index=True)
+
+  class Funcionario(Pessoa):
+     __mapper_args__ = {'polymorphic_identity': 'funcionario'}
+     cargo = db.Column(db.String(50))
+  ```
+
+### Polimorfismo (Single Table Inheritance)
+
+Para `Livro` aplicamos Single Table Inheritance (STI): as subclasses compartilham a mesma tabela mas têm comportamentos diferentes.
+
+ - `Livro` é a classe base com os campos comuns (`isbn`, `titulo`, `autor`, `disponivel`, `multa_diaria`).
+ - `LivroReferencia` herda de `Livro` e altera comportamento (ex.: multa diária maior).
+
+Exemplo:
+
+```python
+class Livro(db.Model):
+   isbn = db.Column(db.String(20), primary_key=True)
+   titulo = db.Column(db.String(200), nullable=False)
+   disponivel = db.Column(db.Boolean, default=True)
+   multa_diaria = db.Column(db.Float, default=1.00)
+   tipo = db.Column(db.String(50))
+   __mapper_args__ = {'polymorphic_identity': 'livro_comum', 'polymorphic_on': tipo}
+
+class LivroReferencia(Livro):
+   __mapper_args__ = {'polymorphic_identity': 'livro_referencia'}
+   def __init__(self, titulo, autor, isbn, **kwargs):
+      super().__init__(titulo=titulo, autor=autor, isbn=isbn, **kwargs)
+      self.multa_diaria = 5.00
+```
+
+Como consequência, quando você faz `Livro.query.all()` o SQLAlchemy retorna instâncias do tipo correto (`Livro` ou `LivroReferencia`) e chamar `l.get_valor_multa_diaria()` aplica a regra correta dependendo da subclasse.
+
+### Associação (classe de associação `Locacao`)
+
+Para representar empréstimos usamos a tabela `Locacao` como **classe de associação** que conecta `Leitor`, `Livro` e `Funcionario`.
+
+Principais pontos:
+
+- `Locacao` tem chaves estrangeiras para `pessoas.id` (leitor e funcionario) e `livros.isbn` (livro).
+- A `Locacao` armazena datas `data_locacao`, `data_devolucao_prevista` e `data_devolucao_real`.
+- Relacionamentos (`db.relationship`) permitem navegar facilmente entre objetos: `locacao.leitor`, `locacao.livro`, `locacao.funcionario`.
+
+Exemplo simplificado:
+
+```python
+class Locacao(db.Model):
+   id = db.Column(db.Integer, primary_key=True)
+   data_locacao = db.Column(db.Date, default=date.today)
+   leitor_id = db.Column(db.String, db.ForeignKey('pessoas.id'))
+   livro_isbn = db.Column(db.String(20), db.ForeignKey('livros.isbn'))
+
+   leitor = db.relationship('Leitor', backref='locacoes_feitas')
+   livro = db.relationship('Livro', backref='registros_locacao')
+```
+
+Uso nas rotas:
+
+- Na rota `/locar`, o servidor faz:
+  1. Buscar `Leitor` por `matricula` e `Livro` por `isbn`.
+  2. Verificar disponibilidade e limites do leitor.
+  3. Criar `Locacao(leitor=leitor, livro=livro, funcionario=func)` — o construtor ajusta `data_devolucao_prevista`.
+  4. Setar `livro.disponivel = False` e salvar tudo em uma transação.
+
+  Isso garante que a associação seja persistida corretamente e que relacionamentos estejam disponíveis em consultas (por exemplo, em `status` mostramos locações ativas navegando `loc.livro.titulo` e `loc.leitor.nome`).
+
+### Exemplos práticos (fluxo)
+
+- `Leitor.fazer_locacao(livro, funcionario)` encapsula regras de negócio (limite de livros, disponibilidade) e retorna uma instância `Locacao` pronta para ser salva.
+- `Locacao.calcular_multa()` usa `data_devolucao_real` e `livro.get_valor_multa_diaria()` — note que `get_valor_multa_diaria()` respeita o polimorfismo (livros de referência têm multa maior).
+
+Em poucas linhas: herança organiza os tipos de pessoas e livros; polimorfismo garante comportamento diferente entre subtipos de `Livro`; a associação `Locacao` conecta as entidades e guarda as informações do empréstimo — tudo isso levando a um código claro e orientado a objetos.
 
 ## 📋 Funcionalidades
 
