@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{% block title %}Sistema de Biblioteca{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand">Sistema de Biblioteca</div>
+        <nav class="main-nav">
+            <a href="/">Início</a>
+            <a href="/cadastrar">Cadastrar</a>
+            <a href="/locar">Locar</a>
+            <a href="/devolver">Devolver</a>
+            <a href="/status">Status</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">&copy; Biblioteca — Interface criada automaticamente</footer>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

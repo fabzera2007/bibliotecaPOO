@@ -1,17 +1,17 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8"/>
-  <title>Biblioteca</title>
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-  <header><h1>Sistema de Biblioteca</h1></header>
-  <main class="container">
-    <a class="btn" href="/cadastrar">Cadastrar Pessoas / Livros</a>
-    <a class="btn" href="/locar">Locar Livro</a>
-    <a class="btn" href="/devolver">Devolver Livro</a>
-    <a class="btn" href="/status">Status do Sistema</a>
-  </main>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Início — Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <h2>Bem-vindo à Biblioteca</h2>
+    <p class="lead">Gerencie leitores, livros e empréstimos de forma simples e rápida.</p>
+
+    <div class="actions">
+      <a class="btn primary" href="/cadastrar">Cadastrar Pessoas / Livros</a>
+      <a class="btn" href="/locar">Locar Livro</a>
+      <a class="btn" href="/devolver">Devolver Livro</a>
+      <a class="btn" href="/status">Status do Sistema</a>
+    </div>
+  </section>
+{% endblock %}

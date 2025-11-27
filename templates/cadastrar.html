@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"/><title>Cadastro</title><link rel="stylesheet" href="/static/style.css"></head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Cadastrar — Biblioteca{% endblock %}
+
+{% block content %}
   <h2>Cadastrar</h2>
-  <form action="/cadastrar" method="post">
+  <form id="cadastroForm" class="form-card" action="/cadastrar" method="post">
     <label>Tipo:
-      <select name="tipo">
+      <select id="tipo" name="tipo">
         <option value="leitor">Leitor</option>
         <option value="funcionario">Funcionário</option>
         <option value="livro">Livro Comum</option>
@@ -13,15 +14,103 @@
       </select>
     </label>
 
-    <input name="nome" placeholder="Nome (para pessoa)">
-    <input name="cpf" placeholder="CPF (para pessoa)">
-    <input name="cargo" placeholder="Cargo (funcionário)">
-    <input name="titulo" placeholder="Título (livro)">
-    <input name="autor" placeholder="Autor (livro)">
-    <input name="isbn" placeholder="ISBN (livro)">
+    <!-- Pessoa fields -->
+    <div class="field pessoa-field">
+      <input id="nome" name="nome" placeholder="Nome (para pessoa)">
+      <input id="cpf" name="cpf" placeholder="CPF (para pessoa)">
+      <input id="cargo" name="cargo" placeholder="Cargo (funcionário)">
+    </div>
 
-    <button class="btn" type="submit">Cadastrar</button>
+    <!-- Livro fields -->
+    <div class="field livro-field">
+      <input id="titulo" name="titulo" placeholder="Título (livro)">
+      <input id="autor" name="autor" placeholder="Autor (livro)">
+      <input id="isbn" name="isbn" placeholder="ISBN (livro)">
+    </div>
+
+    <div class="actions" style="width:auto;">
+      <button class="btn primary" type="submit">Cadastrar</button>
+      <a class="btn" href="/">Voltar</a>
+    </div>
   </form>
-  <a class="voltar" href="/">Voltar</a>
-</body>
-</html>
+
+  {% block scripts %}
+  <script>
+    (function(){
+      const tipo = document.getElementById('tipo');
+      const pessoaContainer = document.querySelector('.pessoa-field');
+      const livroContainer = document.querySelector('.livro-field');
+      const pessoaInputs = pessoaContainer ? pessoaContainer.querySelectorAll('input') : [];
+      const livroInputs = livroContainer ? livroContainer.querySelectorAll('input') : [];
+      const cargoInput = document.getElementById('cargo');
+
+      function setVisible(which){
+        if(which === 'leitor'){
+          if(pessoaContainer) pessoaContainer.style.display = 'flex';
+          if(livroContainer) livroContainer.style.display = 'none';
+          pessoaInputs.forEach(i=>{ i.disabled = false; });
+          livroInputs.forEach(i=>{ i.disabled = true; });
+          if(cargoInput){ cargoInput.style.display = 'none'; cargoInput.disabled = true; }
+        } else if(which === 'funcionario'){
+          if(pessoaContainer) pessoaContainer.style.display = 'flex';
+          if(livroContainer) livroContainer.style.display = 'none';
+          pessoaInputs.forEach(i=>{ i.disabled = false; });
+          livroInputs.forEach(i=>{ i.disabled = true; });
+          if(cargoInput){ cargoInput.style.display = 'inline-block'; cargoInput.disabled = false; }
+        } else if(which === 'livro' || which === 'referencia'){
+          if(pessoaContainer) pessoaContainer.style.display = 'none';
+          if(livroContainer) livroContainer.style.display = 'flex';
+          pessoaInputs.forEach(i=>{ i.disabled = true; });
+          livroInputs.forEach(i=>{ i.disabled = false; });
+        }
+      }
+
+      // initialize
+      document.addEventListener('DOMContentLoaded', ()=> setVisible(tipo.value));
+      tipo.addEventListener('change', (e)=> setVisible(e.target.value));
+
+      // validation on submit
+      const form = document.getElementById('cadastroForm');
+      const errorBox = document.createElement('div');
+      errorBox.className = 'form-error';
+      form.insertBefore(errorBox, form.firstChild);
+
+      form.addEventListener('submit', function(ev){
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+        // clear previous invalid states
+        form.querySelectorAll('.input-invalid').forEach(i=> i.classList.remove('input-invalid'));
+
+        const t = tipo.value;
+        let problems = [];
+        if(t === 'leitor'){
+          const nome = document.getElementById('nome');
+          const cpf = document.getElementById('cpf');
+          if(!nome.value.trim()) { problems.push('Nome é obrigatório'); nome.classList.add('input-invalid') }
+          if(!cpf.value.trim()) { problems.push('CPF é obrigatório'); cpf.classList.add('input-invalid') }
+        } else if(t === 'funcionario'){
+          const nome = document.getElementById('nome');
+          const cpf = document.getElementById('cpf');
+          const cargo = document.getElementById('cargo');
+          if(!nome.value.trim()) { problems.push('Nome é obrigatório'); nome.classList.add('input-invalid') }
+          if(!cpf.value.trim()) { problems.push('CPF é obrigatório'); cpf.classList.add('input-invalid') }
+          if(!cargo.value.trim()) { problems.push('Cargo é obrigatório'); cargo.classList.add('input-invalid') }
+        } else if(t === 'livro' || t === 'referencia'){
+          const titulo = document.getElementById('titulo');
+          const autor = document.getElementById('autor');
+          if(!titulo.value.trim()) { problems.push('Título é obrigatório'); titulo.classList.add('input-invalid') }
+          if(!autor.value.trim()) { problems.push('Autor é obrigatório'); autor.classList.add('input-invalid') }
+        }
+
+        if(problems.length){
+          ev.preventDefault();
+          errorBox.innerHTML = problems.map(p=>`<div>• ${p}</div>`).join('');
+          errorBox.style.display = 'block';
+          errorBox.scrollIntoView({behavior:'smooth', block:'center'});
+          return false;
+        }
+      });
+    })();
+  </script>
+  {% endblock %}
+{% endblock %}

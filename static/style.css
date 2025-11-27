@@ -1,108 +1,81 @@
-/* reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+/* Base reset and typography */
+* { box-sizing: border-box; }
+:root{
+  --bg: #f2efe5;
+  --accent: #3a3d23;
+  --accent-soft: #556b2f;
+  --muted: #6b6b5a;
+  --card: #ffffff;
+  --radius: 10px;
+  --max-width: 1000px;
+}
+body{
+  margin:0;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: #222;
+  -webkit-font-smoothing:antialiased;
 }
 
-body {
-    background: #f2efe5; /* bege claro */
-    color: #2a2a2a;
-    padding: 20px;
-}
+/* Header / Nav */
+.site-header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:var(--accent);color:#fff;border-radius:10px;margin:18px;}
+.site-header .brand{font-weight:700;font-size:20px}
+.main-nav a{color:#fff;text-decoration:none;margin-left:14px;padding:8px 12px;border-radius:6px;opacity:.95}
+.main-nav a:hover{background:rgba(255,255,255,0.05)}
 
-/* topo */
-header {
-    width: 100%;
-    padding: 20px;
-    background: #3a3d23; /* verde musgo escuro */
-    color: #fff;
-    text-align: center;
-    border-radius: 10px;
-    margin-bottom: 30px;
-}
+.container{max-width:var(--max-width);margin:28px auto;padding:0 20px;}
 
-/* layout */
-.container {
-    max-width: 900px;
-    margin: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
+/* Hero */
+.hero{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 10px}
+.hero h2{margin:0;color:var(--accent);font-size:26px}
+.lead{color:var(--muted)}
 
-/* botões principais */
-.btn {
-    display: block;
-    background: #556b2f; /* verde musgo */
-    color: #f5f5f5;
-    padding: 15px;
-    text-align: center;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 18px;
-    border: 2px solid #3d4822; /* verde mais escuro */
-    transition: 0.2s;
-}
+/* actions/buttons */
+.actions{display:flex;flex-direction:column;gap:14px;width:60%;min-width:240px}
+.btn{display:inline-block;text-align:center;padding:14px 18px;border-radius:10px;text-decoration:none;color:#fff;background:var(--accent-soft);border:0;box-shadow:0 6px 0 rgba(0,0,0,0.06);transition:transform .12s ease,box-shadow .12s}
+.btn.primary{background:var(--accent)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,0.08)}
 
-.btn:hover {
-    background: #3d4822;
-}
+.site-footer{max-width:var(--max-width);margin:40px auto;padding:12px;text-align:center;color:var(--muted)}
 
-/* formulários */
-form {
-    background: #fff;
-    padding: 25px;
-    border-radius: 10px;
-    border: 1px solid #cbbfa6; /* marrom claro */
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+/* Table styles */
+.data-table{width:100%;border-collapse:collapse;margin:16px 0;background:var(--card);border-radius:var(--radius);overflow:hidden}
+.data-table thead th{background:var(--accent);color:#fff;padding:12px;text-align:left}
+.data-table td{padding:12px;border-bottom:1px solid #eee}
+.data-table tbody tr:hover{background:#faf8f5}
 
-input, select {
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #b0a58b;
-    font-size: 16px;
-}
+.status-box{background:var(--card);padding:18px;border-radius:10px}
 
-button {
-    background: #8b5e3c; /* marrom */
-    color: #fff;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-}
+/* Form improvements */
+.form-card{background:var(--card);padding:18px;border-radius:10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.form-card input, .form-card select, .form-card textarea {padding:12px 14px;border-radius:8px;border:1px solid #d0c9bd;font-size:16px;min-height:44px}
+.form-card input[type="date"]{padding:10px}
+.form-card label{display:flex;flex-direction:column;font-size:14px;color:var(--muted)}
 
-button:hover {
-    background: #6e4528;
-}
+/* Make placeholder text larger and clearer */
+.form-card ::placeholder{color:#9b9b8f;font-size:15px;opacity:1}
 
-/* tabelas */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    margin-top: 15px;
-    border-radius: 8px;
-    overflow: hidden;
-}
+/* form fields layout: responsive multi-column */
+.form-card > input, .form-card > select, .form-card > textarea, .form-card label{flex:1 1 220px}
 
-th {
-    background: #3a3d23; /* verde musgo escuro */
-    color: white;
-    padding: 12px;
-}
+/* when actions used inside forms show buttons full width on mobile but side-by-side on desktop */
+.form-card .actions{width:100%;display:flex;gap:12px}
+.form-card .actions .btn{flex:1}
 
-td {
-    padding: 10px;
-    border-bottom: 1px solid #d9d0c3;
-}
+/* hide groups by default to avoid flash; JS shows the correct group */
+.pessoa-field, .livro-field { display: none; width:100%; gap:10px; flex-wrap:wrap; align-items:center }
+.pessoa-field input, .livro-field input { min-width:180px }
 
-tr:hover {
-    background: #f0eadb;
+/* Validation / error styles */
+.form-error{width:100%;background:#fff5f5;color:#8b0000;border:1px solid #f5c2c2;padding:10px;border-radius:8px;margin-bottom:8px;display:none}
+.input-invalid{outline:2px solid #f2c0b9}
+
+/* small utilities */
+.actions .btn{width:100%}
+
+@media (max-width:800px){
+  .actions{width:100%}
+  .site-header{flex-direction:column;gap:10px;align-items:flex-start}
+  .form-card{padding:14px}
+  .hero h2{font-size:20px}
 }

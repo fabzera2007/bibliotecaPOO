@@ -1,21 +1,64 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="/static/styles.css">
-    <title>Status</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<header>Status do Sistema</header>
+{% block title %}Status do Sistema{% endblock %}
 
-<div class="container">
+{% block content %}
+    <h3>Leitores Cadastrados</h3>
+    <table class="data-table">
+        <thead>
+            <tr><th>Matrícula</th><th>Nome</th><th>Ativas</th></tr>
+        </thead>
+        <tbody>
+            {% for l in leitores %}
+                <tr>
+                    <td>{{ l.matricula }}</td>
+                    <td>{{ l.nome }}</td>
+                    <td>{{ Locacao.query.filter_by(leitor_id=l.id).join(Livro).filter(Livro.disponivel==False).count() }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="3">Nenhum leitor cadastrado.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    <div class="status-box">
-        {{ conteudo }}
+    <h3>Livros no Acervo</h3>
+    <table class="data-table">
+        <thead>
+            <tr><th>ISBN</th><th>Título</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for lv in livros %}
+                <tr>
+                    <td>{{ lv.isbn }}</td>
+                    <td>{{ lv.titulo }} {% if lv.tipo == 'livro_referencia' %}<small>(Referência)</small>{% endif %}</td>
+                    <td>{{ 'Disponível' if lv.disponivel else 'Locado' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="3">Nenhum livro no acervo.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Locações Ativas</h3>
+    <table class="data-table">
+        <thead>
+            <tr><th>Leitor</th><th>Livro</th><th>Previsão Devolução</th></tr>
+        </thead>
+        <tbody>
+            {% for loc in locs_ativas %}
+                <tr>
+                    <td>{{ loc.leitor.nome if loc.leitor else 'Desconhecido' }}</td>
+                    <td>{{ loc.livro.titulo if loc.livro else 'Desconhecido' }}</td>
+                    <td>{{ loc.data_devolucao_prevista }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="3">Nenhuma locação ativa.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="actions">
+        <a class="btn" href="/">Voltar</a>
     </div>
 
-</div>
-
-</body>
-</html>
+{% endblock %}

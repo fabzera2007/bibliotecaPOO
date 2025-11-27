@@ -1,13 +1,37 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"/><title>Locar</title><link rel="stylesheet" href="/static/style.css"></head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}Locar Livro — Biblioteca{% endblock %}
+
+{% block content %}
   <h2>Locação</h2>
-  <form action="/locar" method="post">
+  <form class="form-card" action="/locar" method="post">
     <input name="matricula" placeholder="Matrícula do Leitor">
     <input name="isbn" placeholder="ISBN do Livro">
-    <button class="btn" type="submit">Locar</button>
+    <div class="actions">
+      <button class="btn primary" type="submit">Locar</button>
+      <a class="btn" href="/">Voltar</a>
+    </div>
   </form>
-  <a class="voltar" href="/">Voltar</a>
-</body>
-</html>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function(){
+    const form = document.querySelector('form');
+    const error = document.createElement('div');
+    error.className = 'form-error';
+    form.insertBefore(error, form.firstChild);
+
+    form.addEventListener('submit', function(e){
+      error.style.display='none'; error.textContent='';
+      form.querySelectorAll('.input-invalid').forEach(i=> i.classList.remove('input-invalid'));
+      const mat = form.querySelector('input[name="matricula"]');
+      const isbn = form.querySelector('input[name="isbn"]');
+      const problems = [];
+      if(!mat.value.trim()){ problems.push('Informe a matrícula do leitor'); mat.classList.add('input-invalid') }
+      if(!isbn.value.trim()){ problems.push('Informe o ISBN do livro'); isbn.classList.add('input-invalid') }
+      if(problems.length){ e.preventDefault(); error.innerHTML = problems.map(p=>`<div>• ${p}</div>`).join(''); error.style.display='block'; error.scrollIntoView({behavior:'smooth', block:'center'}); }
+    });
+  })();
+</script>
+{% endblock %}
