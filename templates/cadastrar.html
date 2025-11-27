@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"/><title>Cadastro</title><link rel="stylesheet" href="/static/style.css"></head>
+<body>
+  <h2>Cadastrar</h2>
+  <form action="/cadastrar" method="post">
+    <label>Tipo:
+      <select name="tipo">
+        <option value="leitor">Leitor</option>
+        <option value="funcionario">Funcionário</option>
+        <option value="livro">Livro Comum</option>
+        <option value="referencia">Livro Referência</option>
+      </select>
+    </label>
+
+    <input name="nome" placeholder="Nome (para pessoa)">
+    <input name="cpf" placeholder="CPF (para pessoa)">
+    <input name="cargo" placeholder="Cargo (funcionário)">
+    <input name="titulo" placeholder="Título (livro)">
+    <input name="autor" placeholder="Autor (livro)">
+    <input name="isbn" placeholder="ISBN (livro)">
+
+    <button class="btn" type="submit">Cadastrar</button>
+  </form>
+  <a class="voltar" href="/">Voltar</a>
+</body>
+</html>
