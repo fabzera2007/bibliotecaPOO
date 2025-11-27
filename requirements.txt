@@ -1,5 +1,6 @@
 Flask==2.3.3
 Flask-SQLAlchemy==3.0.5
-SQLAlchemy==2.0.21
+# Let pip choose a compatible SQLAlchemy version for the runtime
+SQLAlchemy
 Werkzeug==2.3.7
 gunicorn==21.2.0
