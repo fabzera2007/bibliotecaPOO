@@ -90,14 +90,6 @@ Uso nas rotas:
   3. Criar `Locacao(leitor=leitor, livro=livro, funcionario=func)` — o construtor ajusta `data_devolucao_prevista`.
   4. Setar `livro.disponivel = False` e salvar tudo em uma transação.
 
-  Isso garante que a associação seja persistida corretamente e que relacionamentos estejam disponíveis em consultas (por exemplo, em `status` mostramos locações ativas navegando `loc.livro.titulo` e `loc.leitor.nome`).
-
-### Exemplos práticos (fluxo)
-
-- `Leitor.fazer_locacao(livro, funcionario)` encapsula regras de negócio (limite de livros, disponibilidade) e retorna uma instância `Locacao` pronta para ser salva.
-- `Locacao.calcular_multa()` usa `data_devolucao_real` e `livro.get_valor_multa_diaria()` — note que `get_valor_multa_diaria()` respeita o polimorfismo (livros de referência têm multa maior).
-
-Em poucas linhas: herança organiza os tipos de pessoas e livros; polimorfismo garante comportamento diferente entre subtipos de `Livro`; a associação `Locacao` conecta as entidades e guarda as informações do empréstimo — tudo isso levando a um código claro e orientado a objetos.
 
 ## 📋 Funcionalidades
 
