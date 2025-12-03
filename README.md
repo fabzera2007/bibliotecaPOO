@@ -82,14 +82,6 @@ class Locacao(db.Model):
    livro = db.relationship('Livro', backref='registros_locacao')
 ```
 
-Uso nas rotas:
-
-- Na rota `/locar`, o servidor faz:
-  1. Buscar `Leitor` por `matricula` e `Livro` por `isbn`.
-  2. Verificar disponibilidade e limites do leitor.
-  3. Criar `Locacao(leitor=leitor, livro=livro, funcionario=func)` — o construtor ajusta `data_devolucao_prevista`.
-  4. Setar `livro.disponivel = False` e salvar tudo em uma transação.
-
 
 ## 📋 Funcionalidades
 
